@@ -22,7 +22,7 @@ class Random(Model):
         return prediction
 
     def store_reward(self, reward):
-        self.last_r     = reward
+        self.last_reward     = reward
 
 
 class MostExpensive(Model):
@@ -40,7 +40,7 @@ class MostExpensive(Model):
         return prediction
 
     def store_reward(self, reward):
-        self.last_r     = reward
+        self.last_reward     = reward
 
 
 from sklearn.linear_model import LogisticRegression
@@ -88,11 +88,11 @@ class LogReg(Model):
         return prediction
 
     def store_reward(self, reward):
-        self.last_r     = reward
+        self.last_reward     = reward
 
         self.X.append(self.last_state[:, 2:][self.last_prediction])
         self.Y.append(self.last_reward > 0)
-        if retrain is not None:
+        if self.retrain is not None:
             if self.step % self.retrain == 0:
                 self.logreg.fit(self.X, self.Y)
 
@@ -103,7 +103,7 @@ class SVCModel(Model):
     def __init__(self, price_reweight=False, retrain=None):
         self.price_reweight = price_reweight
         self.retrain = retrain
-        self.logreg = None
+        self.model = None
 
         self.step = 0
 
@@ -120,8 +120,8 @@ class SVCModel(Model):
             self.X.append(x)
             self.Y.append(y)
 
-        self.logreg = SVC(probability=True)
-        self.logreg.fit(self.X, self.Y)
+        self.model = SVC(probability=True)
+        self.model.fit(self.X, self.Y)
 
     def predict(self, input_data):
         self.step += 1
@@ -130,7 +130,7 @@ class SVCModel(Model):
 
         xs = self.last_state[:, 2:]
 
-        scores = self.logreg.predict_proba(xs)[:, 1]
+        scores = self.model.predict_proba(xs)[:, 1]
 
         if self.price_reweight:
             weights = np.array(self.last_state)[:, 2]
@@ -142,14 +142,10 @@ class SVCModel(Model):
         return prediction
 
     def store_reward(self, reward):
-        self.last_r     = reward
+        self.last_reward     = reward
 
         self.X.append(self.last_state[:, 2:][self.last_prediction])
         self.Y.append(self.last_reward > 0)
-        if retrain is not None:
+        if self.retrain is not None:
             if self.step % self.retrain == 0:
-                self.logreg.fit(self.X, self.Y)
-
-
-
-    
+                self.model.fit(self.X, self.Y)
