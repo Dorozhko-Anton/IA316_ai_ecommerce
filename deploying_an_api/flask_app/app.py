@@ -8,7 +8,12 @@ agent = None
 def train():
     global agent
     history = request.json
-    print(history.keys())
+    print(history)
+    # history['nb_users']
+    # history['nb_items']
+    # history['user_history']
+    # history['item_history']
+    # history['rating_history']
     agent = RecommenderModel(history)
     return jsonify('OK')
 
@@ -16,10 +21,14 @@ def train():
 def predict():
     global agent
     print(request.json)
-    print(agent)
     input_data = request.json
+
+    #input_data['user']
+    #input_data['item']
     output_data = agent.predict(input_data)
-    response = jsonify(output_data)
+    response = jsonify(
+                    rating = float(output_data)
+                    )
     return response
 
 if __name__ == "__main__":
