@@ -11,6 +11,7 @@ WORKDIR /usr/src
 COPY requirements.txt .
 
 # Install requirements
+RUN pip install numpy>=1.15
 RUN pip install -r requirements.txt
 
 # Copy current folder
